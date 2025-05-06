@@ -1,5 +1,7 @@
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.yhToken = sdk.MessageBase.yhToken
         self.NetJsonPost = sdk.MessageBase.NetJsonPost
         self.local_board_api = (
@@ -8,7 +10,6 @@ class Main:
         self.global_board_api = (
             "https://chat-go.jwzhd.com/open-apis/v1/bot/board-all?token=" + self.yhToken
         )
-        self.logger = logger
 
     def _gen_local_body(
         self,

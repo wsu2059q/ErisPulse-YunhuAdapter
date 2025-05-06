@@ -1,9 +1,10 @@
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.yhToken = sdk.MessageBase.yhToken
         self.NetJsonPost = sdk.MessageBase.NetJsonPost
         self.NetJsonGet = sdk.MessageBase.NetJsonGet
-        self.logger = logger
         self.history_api = (
             "https://chat-go.jwzhd.com/open-apis/v1/bot/messages?token=" + self.yhToken
         )

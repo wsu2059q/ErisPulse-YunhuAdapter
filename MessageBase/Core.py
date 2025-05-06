@@ -5,9 +5,10 @@ import filetype
 
 
 class Main:
-    def __init__(self, sdk, logger) -> None:
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.yhToken = sdk.env.get("YunhuAdapter", {}).get("token", "0")
-        self.logger = logger
         if self.yhToken == "0":
             self.logger.warning(
                 "未配置云湖令牌，可能会导致一些功能无法使用哦"

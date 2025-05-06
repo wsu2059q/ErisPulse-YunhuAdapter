@@ -1,8 +1,9 @@
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.on = "message.receive.instruction"
         self.handles: dict[list[object]] = {"ALL": []}
-        self.logger = logger
 
     def AddHandle(self, handle, cmdid="ALL"):
         if cmdid not in self.handles:

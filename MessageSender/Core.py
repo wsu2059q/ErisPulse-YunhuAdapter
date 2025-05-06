@@ -1,13 +1,14 @@
 
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.yhToken = sdk.MessageBase.yhToken
         self.apiUrl = (
             "https://chat-go.jwzhd.com/open-apis/v1/bot/send?token=" + self.yhToken
         )
         self.NetJsonPost = sdk.MessageBase.NetJsonPost
         self.NetFileUpload = sdk.MessageBase.NetFileUpload
-        self.logger = logger
 
     def _gen_body(
         self,

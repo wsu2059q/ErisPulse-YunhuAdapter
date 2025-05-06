@@ -1,7 +1,7 @@
 moduleInfo = {
     "meta": {
         "name": "MessageBoard",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "异步云湖适配器 - 消息看板模块",
         "author": "r1a, WSu2059",
         "license": "MIT",

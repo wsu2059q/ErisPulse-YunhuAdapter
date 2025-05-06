@@ -1,5 +1,7 @@
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.on = "group.join"
         self.handles: list[object] = []
 

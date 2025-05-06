@@ -1,7 +1,7 @@
 moduleInfo = {
     "meta": {
         "name": "MessageBase",
-        "version": "1.1.1",
+        "version": "1.1.2",
         "description": "异步云湖适配器 - 消息基类模块",
         "author": "r1a, WSu2059",
         "license": "MIT",

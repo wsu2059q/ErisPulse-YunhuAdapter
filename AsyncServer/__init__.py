@@ -1,7 +1,7 @@
 moduleInfo = {
     "meta": {
         "name": "AsyncServer",
-        "version": "1.1.2",
+        "version": "1.1.3",
         "description": "异步云湖适配器服务器模块",
         "author": "r1a, WSu2059",
         "license": "MIT",

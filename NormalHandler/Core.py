@@ -1,5 +1,7 @@
 class Main:
-    def __init__(self, sdk, logger):
+    def __init__(self, sdk):
+        self.sdk = sdk
+        self.logger = sdk.logger
         self.on = "message.receive.normal"
         self.handles: list[object] = []
 
