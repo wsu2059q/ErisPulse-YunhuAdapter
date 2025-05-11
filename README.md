@@ -269,18 +269,6 @@ result = await sdk.MessageHistory.HistoryBefore(chatId="group123", chatType="gro
 
 ---
 
-### 模块功能对比表：
-
-| 模块名         | 接收者类型     | 是否支持批量 | 是否支持编辑 | 是否支持看板 | 是否支持文件上传 |
-|----------------|----------------|---------------|----------------|----------------|--------------------|
-| `MessageSender` | 单个用户/群组   | ❌            | ❌             | ❌             | ✅                 |
-| `MessageBatch`  | 多个用户/群组   | ✅            | ❌             | ❌             | ✅                 |
-| `MessageBoard`  | 用户/群组       | ❌            | ❌             | ✅             | ❌                 |
-| `MessageEditor` | 单个用户/群组   | ❌            | ✅             | ❌             | ❌                 |
-| `MessageHistory`| 用户/群组       | ❌            | ❌             | ❌             | ❌                 |
-
----
-
 ## 参考链接
 
 - [ErisPulse 主库](https://github.com/ErisPulse/ErisPulse/)
