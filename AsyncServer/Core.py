@@ -23,7 +23,6 @@ class Main:
                 },
                 "token": ""
             })
-            })
             """)
 
         self.host = self.YunhuAdapterConfig.get("host", "127.0.0.1")
