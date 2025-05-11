@@ -156,7 +156,7 @@ sdk.<Module>.AddHandle(handle)
 | `MessageHistory`  | 查询历史消息及撤回               |
 | `MessageBoard`    | 发布看板消息（含全局和局部）     |
 
-### ✅ `MessageSender` 模块
+### `MessageSender` 模块
 #### 功能：一对一发送消息给用户或群组
 
 ##### 主要方法：
@@ -179,7 +179,7 @@ await sdk.MessageSender.Text(
 
 ---
 
-### ✅ `MessageBatch` 模块
+### `MessageBatch` 模块
 #### 功能：向多个接收者批量发送消息
 
 ##### 主要方法：
