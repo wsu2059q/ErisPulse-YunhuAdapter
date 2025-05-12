@@ -2,7 +2,7 @@
 
 ## 模块介绍
 
-### AsyncServer（Webhook Server）
+### YunhuAdapter（Webhook Server）
 提供异步 HTTP 服务，用于接收来自云湖 App 的 Webhook 推送事件。适用于云湖开放平台的消息回调机制。
 
 #### 主要功能：
@@ -22,13 +22,6 @@ from ErisPulse import sdk
 # 初始化SDK
 sdk.init()
 
-# 定义消息处理函数
-async def on_normal_message(data):
-    print(f"收到普通消息: {data}")
-
-async def on_group_join(data):
-    print(f"有人加入群组: {data}")
-
 async def on_followed(data):
     print(f"被用户关注啦: {data}")
 
@@ -47,25 +40,21 @@ async def handle_stop(data):
 
 async def main():
     # 添加触发器
-    sdk.AsyncServer.AddTrigger(sdk.MessageHandler)        # 注册普通消息触发器
-    sdk.AsyncServer.AddTrigger(sdk.NoticeHandler)         # 注册通知触发器
-    sdk.AsyncServer.AddTrigger(sdk.BotFollowed)           # 注册关注事件
-    sdk.AsyncServer.AddTrigger(sdk.BotUnfollowed)         # 注册取消关注事件
-    sdk.AsyncServer.AddTrigger(sdk.CommandHandler)        # 注册指令消息触发器
+    sdk.YunhuAdapter.AddTrigger(sdk.YunhuBotFollowed)           # 注册关注事件
+    sdk.YunhuAdapter.AddTrigger(sdk.YunhuBotUnfollowed)         # 注册取消关注事件
+    sdk.YunhuAdapter.AddTrigger(sdk.YunhuCommandHandler)        # 注册指令消息触发器
 
     # 添加具体处理器
-    sdk.MessageHandler.AddHandle(on_normal_message)
-    sdk.NoticeHandler.AddHandle(on_group_join)
-    sdk.BotFollowed.AddHandle(on_followed)
-    sdk.BotUnfollowed.AddHandle(on_unfollowed)
-    sdk.CommandHandler.AddHandle(on_command)
+    sdk.YunhuBotFollowed.AddHandle(on_followed)
+    sdk.YunhuBotUnfollowed.AddHandle(on_unfollowed)
+    sdk.YunhuCommandHandler.AddHandle(on_command)
 
     # 添加带指令ID的处理器
-    sdk.CommandHandler.AddHandle(handle_start, "114")
-    sdk.CommandHandler.AddHandle(handle_stop, "514")
+    sdk.YunhuCommandHandler.AddHandle(handle_start, "114")
+    sdk.YunhuCommandHandler.AddHandle(handle_stop, "514")
 
     # 启动 Webhook 服务
-    await sdk.AsyncServer.Run()
+    await sdk.YunhuAdapter.Run()
 
 # 运行主程序
 asyncio.run(main())
@@ -99,13 +88,13 @@ sdk.env.set('YunhuAdapter',{
 
 ---
 
-## CommandHandler 特别说明
+## YunhuCommandHandler 特别说明
 
-`CommandHandler` 是处理带有指令 ID 的命令类消息的专用模块，支持按 `instructionId` 或 `commandId` 分类处理。
+`YunhuCommandHandler` 是处理带有指令 ID 的命令类消息的专用模块，支持按 `instructionId` 或 `commandId` 分类处理。
 
 ### AddHandle 方法：
 ```python
-sdk.CommandHandler.AddHandle(handle, cmdid="ALL")
+sdk.YunhuCommandHandler.AddHandle(handle, cmdid="ALL")
 ```
 
 | 参数名 | 类型 | 必填 | 说明 |
@@ -118,7 +107,7 @@ sdk.CommandHandler.AddHandle(handle, cmdid="ALL")
 > async def handle_cmd1(data):
 >     print("收到指令 CMD1", data)
 >
-> sdk.CommandHandler.AddHandle(handle_cmd1, "CMD1")
+> sdk.YunhuCommandHandler.AddHandle(handle_cmd1, "CMD1")
 > ```
 
 ---
@@ -129,9 +118,9 @@ sdk.CommandHandler.AddHandle(handle, cmdid="ALL")
 
 | 模块名              | 事件类型         | 功能描述                           |
 |---------------------|------------------|------------------------------------|
-| NormalHandler       | `message.receive.normal` | 处理普通文本/富文本消息             |
-| JoinGroupHandler, LeaveGroupHandler    | `group.join`, `group.leave` 等 | 处理加入群聊，离开群聊事件                     |
-| BotFollowed, BotUnfollowed         | `bot.followed`, `unfollowed`  | 处理用户 关注/取消关注 机器人事件               |
+| YunhuNormalHandler       | `message.receive.normal` | 处理普通文本/富文本消息             |
+| YunhuGroupJoinHandler, YunhuGroupLeaveHandler    | `group.join`, `group.leave` 等 | 处理加入群聊，离开群聊事件                     |
+| YunhuBotFollowed, YunhuBotUnfollowed         | `bot.followed`, `unfollowed`  | 处理用户 关注/取消关注 机器人事件               |
 
 ### AddHandle 方法（通用）：
 ```python
@@ -150,13 +139,13 @@ sdk.<Module>.AddHandle(handle)
 
 | 模块名            | 功能说明                         |
 |-------------------|----------------------------------|
-| `MessageSender`   | 发送一对一消息                   |
-| `MessageBatch`    | 批量发送消息                     |
-| `MessageEditor`   | 编辑已发送消息                   |
-| `MessageHistory`  | 查询历史消息及撤回               |
-| `MessageBoard`    | 发布看板消息（含全局和局部）     |
+| `YunhuMessageSender`   | 发送一对一消息                   |
+| `YunhuMessageBatch`    | 批量发送消息                     |
+| `YunhuMessageEditor`   | 编辑已发送消息                   |
+| `YunhuMessageHistory`  | 查询历史消息及撤回               |
+| `YunhuMessageBoard`    | 发布看板消息（含全局和局部）     |
 
-### `MessageSender` 模块
+### `YunhuMessageSender` 模块
 #### 功能：一对一发送消息给用户或群组
 
 ##### 主要方法：
@@ -169,7 +158,7 @@ sdk.<Module>.AddHandle(handle)
 
 ##### 示例：
 ```python
-await sdk.MessageSender.Text(
+await sdk.YunhuMessageSender.Text(
     recvId="user123",
     recvType="user",
     content="你好！",
@@ -179,7 +168,7 @@ await sdk.MessageSender.Text(
 
 ---
 
-### `MessageBatch` 模块
+### `YunhuMessageBatch` 模块
 #### 功能：向多个接收者批量发送消息
 
 ##### 主要方法：
@@ -192,7 +181,7 @@ await sdk.MessageSender.Text(
 
 ##### 示例：
 ```python
-await sdk.MessageBatch.Text(
+await sdk.YunhuMessageBatch.Text(
     recvIds=["user1", "user2"],
     recvType="user",
     content="这是一条批量消息"
@@ -201,7 +190,7 @@ await sdk.MessageBatch.Text(
 
 ---
 
-### `MessageBoard` 模块
+### `YunhuMessageBoard` 模块
 #### 功能：发布或撤销看板消息（指定会话或全局）
 
 ##### 主要方法：
@@ -220,15 +209,15 @@ await sdk.MessageBatch.Text(
 ##### 示例：
 ```python
 # 发布全局文本看板
-await sdk.MessageBoard.GlobalText("这是全局公告！", expireTime=86400)
+await sdk.YunhuMessageBoard.GlobalText("这是全局公告！", expireTime=86400)
 
 # 撤销某个用户的局部看板
-await sdk.MessageBoard.LocalDismiss(chatId="group123", chatType="group", memberId="user1")
+await sdk.YunhuMessageBoard.LocalDismiss(chatId="group123", chatType="group", memberId="user1")
 ```
 
 ---
 
-### `MessageEditor` 模块
+### `YunhuMessageEditor` 模块
 #### 功能：编辑已发送的消息内容（支持文本/Markdown）
 
 ##### 主要方法：
@@ -237,7 +226,7 @@ await sdk.MessageBoard.LocalDismiss(chatId="group123", chatType="group", memberI
 
 ##### 示例：
 ```python
-await sdk.MessageEditor.Text(
+await sdk.YunhuMessageEditor.Text(
     msgId="msg_abc123",
     recvId="user123",
     recvType="user",
@@ -247,7 +236,7 @@ await sdk.MessageEditor.Text(
 
 ---
 
-### `MessageHistory` 模块
+### `YunhuMessageHistory` 模块
 #### 功能：撤回消息 & 查询历史消息
 
 ##### 主要方法：
@@ -261,10 +250,10 @@ await sdk.MessageEditor.Text(
 ##### 示例：
 ```python
 # 撤回一条消息
-await sdk.MessageHistory.Recall(msgId="msg_abc123", recvId="user123", recvType="user")
+await sdk.YunhuMessageHistory.Recall(msgId="msg_abc123", recvId="user123", recvType="user")
 
 # 查询某会话前5条历史消息
-result = await sdk.MessageHistory.HistoryBefore(chatId="group123", chatType="group", before=5)
+result = await sdk.YunhuMessageHistory.HistoryBefore(chatId="group123", chatType="group", before=5)
 ```
 
 ---
