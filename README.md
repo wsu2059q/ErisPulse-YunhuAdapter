@@ -2,7 +2,7 @@
 
 ## 模块介绍
 
-### YunhuAdapter（Webhook Server）
+### YunhuAdapter
 提供异步 HTTP 服务，用于接收来自云湖 App 的 Webhook 推送事件。适用于云湖开放平台的消息回调机制。
 
 #### 主要功能：
@@ -87,12 +87,65 @@ sdk.env.set('YunhuAdapter',{
 | `token` | string | 可选，用于校验请求来源合法性 |
 
 ---
+## 💡 装饰器方式监听事件（v1.2.0+ 新增）
+
+自 `YunhuAdapter v1.2.0` 起，你可以使用如下方式快速监听事件：
+
+```python
+@sdk.YunhuAdapter.on("bot.followed")
+async def on_followed(data):
+    print("有用户关注了机器人:", data)
+
+@sdk.YunhuAdapter.on("message.receive.instruction").id("114514")
+async def handle_calculator_a(data):
+    print("用户输入了id为 114514 的命令:", data)
+
+@sdk.YunhuAdapter.on("message.receive.instruction").name("计算器")
+async def handle_calculator_b(data):
+    print("用户输入了名称为 计算器 的命令:", data)
+```
+
+该方式语法简洁，适合快速开发或小型脚本。
+
+---
+
+## 📚 模块化事件处理（推荐）
+
+尽管装饰器方式非常方便，我们仍然建议使用独立模块进行事件处理，原因包括：
+
+- 更好的职责分离与代码组织
+- 支持多处理器、分类处理（如 `.AddHandle(handler)`）
+- 插件系统兼容性更好
+- 日志更清晰，便于调试维护
+- 更易扩展未来功能（权限控制、中间件等）
+
+---
+
+## 📬 支持的事件类型
+
+| 模块名              | 事件类型         | 功能描述                           |
+|---------------------|------------------|------------------------------------|
+| `YunhuBotFollowed`       | `bot.followed`           | 处理用户关注机器人事件               |
+| `YunhuBotUnfollowed`     | `bot.unfollowed`         | 处理用户取消关注机器人事件             |
+| `YunhuCommandHandler`    | `message.receive.instruction` | 处理带有指令 ID 的消息事件             |
+| `YunhuNormalHandler`     | `message.receive.normal` | 处理普通文本/富文本消息               |
+| `YunhuGroupJoin`         | `group.join`             | 处理用户加入群聊事件                 |
+| `YunhuGroupLeave`        | `group.leave`            | 处理用户退出群聊事件                 |
+
+### AddHandle 的通用使用方法：
+```python
+sdk.<Module>.AddHandle(handle)
+```
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| `handle` | async function | ✅ | 异步处理函数，接受一个参数 `data`（即事件数据） |
 
 ## YunhuCommandHandler 特别说明
 
 `YunhuCommandHandler` 是处理带有指令 ID 的命令类消息的专用模块，支持按 `instructionId` 或 `commandId` 分类处理。
 
-### AddHandle 方法：
+特别的 YunhuCommandHandler 的 AddHandle 方法支持传入 `cmdid` 以获取指定指令 ID 的处理回调
 ```python
 sdk.YunhuCommandHandler.AddHandle(handle, cmdid="ALL")
 ```
@@ -102,35 +155,6 @@ sdk.YunhuCommandHandler.AddHandle(handle, cmdid="ALL")
 | `handle` | async function | ✅ | 异步处理函数，参数为接收到的数据 `data` |
 | `cmdid` | str | ❌ | 要监听的指令 ID，默认 `"ALL"` 表示所有未单独匹配的指令 |
 
-> 示例：
-> ```python
-> async def handle_cmd1(data):
->     print("收到指令 CMD1", data)
->
-> sdk.YunhuCommandHandler.AddHandle(handle_cmd1, "CMD1")
-> ```
-
----
-
-## 其他通用处理器模块（合并说明）
-
-以下模块结构相似，均提供统一的 `AddHandle` 接口来注册事件处理逻辑：
-
-| 模块名              | 事件类型         | 功能描述                           |
-|---------------------|------------------|------------------------------------|
-| YunhuNormalHandler       | `message.receive.normal` | 处理普通文本/富文本消息             |
-| YunhuGroupJoinHandler, YunhuGroupLeaveHandler    | `group.join`, `group.leave` 等 | 处理加入群聊，离开群聊事件                     |
-| YunhuBotFollowed, YunhuBotUnfollowed         | `bot.followed`, `unfollowed`  | 处理用户 关注/取消关注 机器人事件               |
-
-### AddHandle 方法（通用）：
-```python
-sdk.<Module>.AddHandle(handle)
-```
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| `handle` | async function | ✅ | 异步处理函数，接受一个参数 `data`（即事件数据） |
-
 ---
 
 ## 消息发送与操作模块
@@ -139,14 +163,14 @@ sdk.<Module>.AddHandle(handle)
 
 | 模块名            | 功能说明                         |
 |-------------------|----------------------------------|
-| `YunhuMessageSender`   | 发送一对一消息                   |
+| `YunhuMessageSender`   | 发送消息                   |
 | `YunhuMessageBatch`    | 批量发送消息                     |
 | `YunhuMessageEditor`   | 编辑已发送消息                   |
 | `YunhuMessageHistory`  | 查询历史消息及撤回               |
 | `YunhuMessageBoard`    | 发布看板消息（含全局和局部）     |
 
 ### `YunhuMessageSender` 模块
-#### 功能：一对一发送消息给用户或群组
+#### 功能：发送消息给用户或群组
 
 ##### 主要方法：
 - `Text(recvId, recvType, content, buttons=[], parentId="")`
@@ -191,10 +215,10 @@ await sdk.YunhuMessageBatch.Text(
 ---
 
 ### `YunhuMessageBoard` 模块
-#### 功能：发布或撤销看板消息（指定会话或全局）
+#### 功能：发布或撤销看板消息（指定用户会话看板或全局看板）
 
 ##### 主要方法：
-- **本地看板**
+- **指定用户看板**
   - `LocalText(chatId, chatType, content, memberId="", expireTime=0)`
   - `LocalMarkdown(chatId, chatType, content, memberId="", expireTime=0)`
   - `LocalHtml(chatId, chatType, content, memberId="", expireTime=0)`
