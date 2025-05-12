@@ -2,6 +2,47 @@ from aiohttp import web
 import asyncio
 import socket
 
+class EventTrigger:
+    def __init__(self, event_type: str, main_instance):
+        self.event_type = event_type
+        self.main = main_instance
+
+    def id(self, cmd_id: int):
+        def decorator(func):
+            class CommandIdTrigger:
+                on = [self.event_type]
+
+                async def OnRecv(self, data):
+                    if data.get("event", {}).get("message", {}).get("commandId") == cmd_id:
+                        await func(data)
+
+            self.main.AddTrigger(CommandIdTrigger())
+            return func
+        return decorator
+
+    def name(self, cmd_name: str):
+        def decorator(func):
+            class CommandNameTrigger:
+                on = [self.event_type]
+
+                async def OnRecv(self, data):
+                    if data.get("event", {}).get("message", {}).get("commandName") == cmd_name:
+                        await func(data)
+
+            self.main.AddTrigger(CommandNameTrigger())
+            return func
+        return decorator
+
+    def __call__(self, func):
+        class GenericTrigger:
+            on = [self.event_type]
+
+            async def OnRecv(self, data):
+                await func(data)
+
+        self.main.AddTrigger(GenericTrigger())
+        return func
+
 class Main:
     def __init__(self, sdk):
         self.sdk = sdk
@@ -29,7 +70,7 @@ class Main:
         self.port = self.YunhuAdapterConfig.get("port", 8080)
         self.path = self.YunhuAdapterConfig.get("path", "/")
         self.app.router.add_post(self.path, self.Handle)
-
+    
     def AddTrigger(self, trigger: object):
         t_names = getattr(trigger, "on", None)
         if isinstance(t_names, list):
@@ -103,6 +144,9 @@ class Main:
             self.logger.debug(f"最后状态检查: 触发器数量 - {sum(len(v) for v in self.triggers.values())}")
         finally:
             await self.Stop()
+    
+    def on(self, event_type: str):
+        return EventTrigger(event_type, self)
 
     @staticmethod
     def is_port_available(host: str, port: int) -> bool:
