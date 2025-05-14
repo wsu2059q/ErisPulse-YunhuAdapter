@@ -64,7 +64,7 @@ asyncio.run(main())
 
 ## 配置说明
 
-在 `env.py` 中进行以下配置：
+在 `config.py` 中进行以下配置：
 
 ```python
 from ErisPulse import sdk
